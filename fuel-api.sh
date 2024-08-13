@@ -54,4 +54,9 @@ get_api_data() {
     
     # Set the location variable
     location="$lat $lng"
+#     >&2 echo -e "location='$lat $lng'\n"
+}
+
+get_coordinates() {
+  get_api_data $@
 }

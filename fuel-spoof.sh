@@ -261,7 +261,9 @@ while [[ "${choice_lock}" != "true" ]]; do
   choose_lock
 done
 
-get_api_data $fuel_type $state_choice
+# Get lat and long positions
+declare location
+get_coordinates $fuel_type $state_choice
 
 # Execute Step 1 and save the output to a file
 echo -e "Starting the tunnel - please wait..."

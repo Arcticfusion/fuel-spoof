@@ -232,6 +232,7 @@ choose_fuel_preview() {
 
 }
 
+# Main Program
 magenta_echo \
 "\n======== Welcome to iOS17 fuel spoofing =========
 Fuel data sourced from projectzerothree.info
@@ -266,48 +267,46 @@ declare location
 get_coordinates $fuel_type $state_choice
 
 # Execute Step 1 and save the output to a file
-echo -e "Starting the tunnel - please wait..."
+magenta_echo "Starting the tunnel - please wait...\n"
 sudo $python_path -m pymobiledevice3 remote start-tunnel --script-mode > "${FUEL_TEMP_FILE}" &
-# Give Step 1 some time to start before proceeding
-#sleep 20
 
 # Wait until temp file has some text
 while [[ ! -s "${FUEL_TEMP_FILE}" ]]; do
     sleep 1
 done
 
-
 # Combine RSD Address and RSD Port
 rsd_data=$(head -n 1 "${FUEL_TEMP_FILE}")
-
 echo -e "\nDevice RSD data is: $rsd_data"
 
-
 # Step 2 - Mount developer image
-echo -e "\nMounting the developer image\n"
+magenta_echo "\nMounting the developer image\n"
 sudo $python_path -m pymobiledevice3 mounter auto-mount
 
-# Step 4 - spoof location
-echo -e "\nLocation Simulation is now running\n"
-echo -e "Spoofing location to ($location)"
-echo -e "You can now open your app and your location will be simulated"
 
-# full_command="sudo $python_path -m pymobiledevice3 developer dvt simulate-location set --rsd $rsd_data -- $location"
-# echo $full_command
-# $full_command
-#echo -e "\nExecuting: $full_command\n"
-sudo $python_path -m pymobiledevice3 developer dvt simulate-location set --rsd $rsd_data -- $location &
+# set_command="sudo $python_path -m pymobiledevice3 developer dvt simulate-location set --rsd $rsd_data -- $location"
+# reset_command="sudo $python_path -m pymobiledevice3 developer dvt simulate-location clear --rsd $rsd_data"
+
+# Start Location spoofing
+sudo $python_path -m pymobiledevice3 developer dvt simulate-location set --rsd $rsd_data -- $location  >/dev/null &
 SIM_PID=$!
+
+# Spoofing notice
+magenta_echo "\nLocation Simulation is now running"
+echo -e "Spoofing location to ($location)
+You can now open your app and your location will be simulated.\n"
+
+
 # Step 5 - Clear the simulated location
-echo -e "\n"
 yellow_echo -n "Press Enter to clear the simulated location..."
 read
-echo -e "\nClearing simulated location..."
+magenta_echo "\nClearing simulated location..."
 kill -s SIGINT ${SIM_PID}
-sudo $python_path -m pymobiledevice3 developer dvt simulate-location clear --rsd $rsd_data
-echo -e "Location cleared!"
+sudo $python_path -m pymobiledevice3 developer dvt simulate-location clear --rsd $rsd_data --
+echo "Location cleared!"
 
 # Cleanup: remove the temporary file
-echo -e "\nCleaning up temp file"
+# magenta_echo "\nCleaning up temp file"
 rm -f "${FUEL_TEMP_FILE}"
-echo -e "\nScript complete - Hope you enjoyed!"
+
+yellow_echo "\nThe script is now complete! Hope you enjoyed :D"
